@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Misiones de Giuliana</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap">
+<style>
+html, body { margin: 0; }
+[hidden] { display: none !important; }
+/* Concepto: un gran salón a la luz de las velas. Velas flotando al fondo, un sobre con sello de cera,
+   pergaminos que se abren con cada misión y un color de casa que tiñe todo al elegirla. */
+:root {
+  --bg: #0d0912;
+  --ink: #f5ead2;
+  --muted: #b3a58d;
+  --line: #43344a;
+  --gold: #f2b94b;
+  --gold-hi: #ffe3a1;
+  --gold-lo: #b5791a;
+  --hue: #f2b94b;
+  --trim: #ffe3a1;
+  --deep: #2b1c0d;
+  --on: #140d05;
+  --parch-ink: #2b1d0e;
+  --bad: #ff9a90;
+  --display: 'Cinzel Decorative', 'Trajan Pro', Georgia, serif;
+  --body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  color-scheme: dark;
+}
+.g { --hue: #ef5f58; --trim: #f0c24e; --deep: #3d1017; }
+.s { --hue: #43bf7c; --trim: #cfd8de; --deep: #0b2b1c; }
+.r { --hue: #6a9af0; --trim: #d2a26a; --deep: #101f44; }
+.h { --hue: #f4c733; --trim: #f7e9ad; --deep: #2c2407; }
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--bg);
+  background-image: radial-gradient(100% 55% at 50% 108%, #46230f 0%, rgba(13, 9, 18, 0) 72%);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18px;
+  line-height: 1.45;
+  min-height: 100vh;
+  padding-block: 0 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  overflow-x: hidden;
+}
+#candles, #fx { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#candles { z-index: 0; }
+#fx { z-index: 40; }
+#app { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; }
+
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 14px; min-height: 56px; }
+.brand { font-family: var(--display); font-weight: 700; font-size: .9rem; color: var(--gold); letter-spacing: .06em; }
+button, input { font-family: var(--body); font-size: 1rem; }
+button { cursor: pointer; color: var(--ink); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 3px; }
+.ghost { min-height: 44px; padding: 0 14px; background: transparent; border: 1px solid var(--line); border-radius: 4px; font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.ghost:hover { border-color: var(--hue); color: var(--ink); }
+.ghost.warn { border-color: #d0605a; color: var(--bad); }
+.cta { display: block; width: 100%; min-height: 56px; padding: 0 22px; border: 0; border-radius: 4px; background: linear-gradient(180deg, var(--trim), var(--hue) 55%, var(--hue)); color: var(--on); font-family: var(--display); font-weight: 900; font-size: 1.05rem; letter-spacing: .05em; box-shadow: 0 0 34px -6px var(--hue); transition: transform .12s, filter .2s; }
+.cta:hover { filter: brightness(1.08); }
+.cta:active { transform: scale(.98); }
+.cta:disabled { filter: grayscale(.8) brightness(.6); box-shadow: none; cursor: not-allowed; }
+
+.kicker { margin: 0; font-size: .8rem; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; color: var(--hue); }
+.title { font-family: var(--display); font-weight: 900; line-height: 1.1; margin: 0; text-wrap: balance;
+  color: var(--gold); background: linear-gradient(100deg, #b5791a 10%, #ffe3a1 35%, #f2b94b 55%, #b5791a 90%); background-size: 220% 100%;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 5s linear infinite; }
+@keyframes shimmer { to { background-position: -220% 0; } }
+.scene { animation: sceneIn .7s ease-out both; }
+@keyframes sceneIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* Bienvenida */
+.welcome { display: grid; gap: 18px; justify-items: center; text-align: center; padding-top: 10px; }
+.welcome .title { font-size: clamp(2rem, 8.6vw, 3.1rem); }
+.seal { position: relative; width: 132px; height: 132px; display: grid; place-items: center; margin-bottom: 4px;
+  border-radius: 47% 53% 49% 51% / 52% 46% 54% 48%;
+  background: radial-gradient(circle at 36% 30%, #e0524a 0%, #a3231f 52%, #5e0f10 100%);
+  box-shadow: 0 0 0 5px rgba(120, 20, 20, .55), 0 12px 34px rgba(0, 0, 0, .6), 0 0 60px rgba(242, 185, 75, .28);
+  animation: floaty 4s ease-in-out infinite alternate; }
+.seal::before { content: ""; position: absolute; inset: 14px; border-radius: 50%; border: 2px solid rgba(255, 227, 161, .55); }
+.seal span { font-family: var(--display); font-weight: 900; font-size: 2.6rem; color: var(--gold-hi); text-shadow: 0 -1px 0 rgba(255, 255, 255, .4), 0 2px 3px rgba(60, 5, 5, .9); }
+@keyframes floaty { from { transform: translateY(-5px) rotate(-3deg); } to { transform: translateY(6px) rotate(3deg); } }
+.tag { margin: 0; font-family: var(--display); font-weight: 700; font-size: 1.15rem; letter-spacing: .06em; color: var(--ink); position: relative; padding-bottom: 8px; }
+.tag::after { content: ""; position: absolute; left: 50%; bottom: 0; height: 2px; width: 100%; max-width: 220px; transform: translateX(-50%); background: linear-gradient(90deg, transparent, var(--gold), transparent); animation: grow 1.6s .4s ease-out both; }
+@keyframes grow { from { width: 0; } to { width: 100%; } }
+.lead { margin: 0; font-size: 1.22rem; text-wrap: pretty; max-width: 34ch; }
+
+/* Casa */
+.setup { display: grid; gap: 16px; }
+.setup h1 { font-family: var(--display); font-weight: 700; font-size: 1.7rem; margin: 4px 0 0; color: var(--gold-hi); text-wrap: balance; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: .8rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+.field input { width: 100%; min-height: 52px; padding: 0 14px; background: rgba(0, 0, 0, .4); border: 1px solid var(--line); border-radius: 4px; color: var(--ink); font-size: 1.1rem; }
+.field input:focus { border-color: var(--gold); }
+.houses { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.hc { position: relative; display: grid; justify-items: center; gap: 8px; padding: 16px 8px 14px; background: linear-gradient(165deg, var(--deep), #130e1a 80%); border: 1px solid var(--line); border-radius: 4px; transition: border-color .2s, transform .15s, box-shadow .2s; min-width: 0; }
+.hc:hover { border-color: var(--hue); }
+.hc[aria-checked="true"] { border-color: var(--hue); box-shadow: 0 0 0 1px var(--hue), 0 0 30px -4px var(--hue); transform: translateY(-2px); }
+.hc .nm { font-family: var(--display); font-weight: 700; font-size: 1rem; color: var(--hue); letter-spacing: .03em; overflow-wrap: anywhere; }
+.crest { width: 44px; height: 52px; flex: none; }
+.crest path { fill: var(--hue); stroke: var(--trim); stroke-width: 2.5; }
+.crest text { font-family: var(--display); font-weight: 900; font-size: 30px; fill: var(--on); }
+
+/* Juego */
+.chip { display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 10px; border: 1px solid var(--hue); border-radius: 4px; background: linear-gradient(165deg, var(--deep), #130e1a 85%); margin-bottom: 14px; }
+.chip .crest { width: 28px; height: 34px; }
+.chip .who { min-width: 0; display: grid; }
+.chip .hn { font-family: var(--display); font-weight: 700; font-size: 1rem; color: var(--hue); overflow-wrap: anywhere; }
+.chip .pn { font-size: .92rem; color: var(--muted); overflow-wrap: anywhere; }
+.chip .sc { margin-left: auto; text-align: right; }
+.chip output { display: block; font-family: var(--display); font-weight: 900; font-size: 1.9rem; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; text-shadow: 0 0 22px var(--hue); }
+.chip output.bump { animation: bump .5s ease-out; }
+@keyframes bump { 40% { transform: scale(1.18); } }
+.chip small { font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--trim); }
+
+.progress { display: grid; gap: 6px; margin-bottom: 18px; }
+.progress p { margin: 0; font-size: .95rem; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.bar2 { height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.bar2 i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--hue), var(--trim)); transition: width .9s cubic-bezier(.3, .8, .3, 1); }
+
+.draw { display: grid; gap: 16px; text-align: center; justify-items: center; padding-block: 10px; }
+.draw .lead { font-size: 1.15rem; color: var(--muted); }
+.scrollicon { width: 150px; height: 96px; position: relative; filter: drop-shadow(0 10px 18px rgba(0, 0, 0, .6)); }
+.scrollicon::before, .scrollicon::after { content: ""; position: absolute; left: 0; right: 0; height: 18px; border-radius: 9px; background: linear-gradient(180deg, #8a6a33, #d8bd7c 45%, #6d4f21); }
+.scrollicon::before { top: 0; } .scrollicon::after { bottom: 0; }
+.scrollicon i { position: absolute; left: 10px; right: 10px; top: 10px; bottom: 10px; background: linear-gradient(180deg, #efe3c0, #dcc994); }
+.wax { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 48% 52% 50% 50% / 52% 48% 52% 48%; background: radial-gradient(circle at 36% 30%, #e0524a, #8f1d1b 70%); box-shadow: 0 2px 8px rgba(0, 0, 0, .6); display: grid; place-items: center; font-family: var(--display); font-weight: 900; font-size: .95rem; color: var(--gold-hi); }
+.opening .scrollicon { animation: rattle .18s linear infinite; }
+@keyframes rattle { 25% { transform: rotate(-3deg) translateX(-2px); } 75% { transform: rotate(3deg) translateX(2px); } }
+.opening .wax { animation: glow 1.2s ease-in forwards; }
+@keyframes glow { to { box-shadow: 0 0 30px 10px rgba(255, 227, 161, .9); transform: scale(1.25); } }
+
+.scroll { position: relative; margin: 0 0 16px; filter: drop-shadow(0 18px 28px rgba(0, 0, 0, .55)); }
+.scroll::before, .scroll::after { content: ""; display: block; height: 18px; border-radius: 9px; background: linear-gradient(180deg, #8a6a33, #d8bd7c 45%, #6d4f21); position: relative; z-index: 2; }
+.paper { position: relative; margin: -6px 10px; padding: 24px 22px 22px; color: var(--parch-ink); background: linear-gradient(180deg, #efe3c0, #e2d1a2); box-shadow: inset 0 0 44px rgba(120, 80, 20, .35); animation: unroll 1.1s cubic-bezier(.3, .8, .3, 1) both; }
+@keyframes unroll { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+.paper .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.paper .kicker { color: #7a5413; }
+.coin { flex: none; padding: 3px 12px; border-radius: 3px; background: #3b2508; color: #ffe3a1; font-family: var(--display); font-weight: 700; font-size: .9rem; }
+.paper h2 { font-family: var(--display); font-weight: 700; font-size: 1.5rem; line-height: 1.15; margin: 8px 0 12px; color: #3b2508; text-wrap: balance; }
+.paper p { margin: 0 0 10px; font-size: 1.2rem; line-height: 1.45; opacity: 0; animation: lineIn .8s ease-out forwards; }
+.paper .mtext { animation-delay: .8s; font-style: italic; }
+.paper .proof { animation-delay: 1.3s; padding-top: 10px; border-top: 1px dashed rgba(60, 40, 10, .45); margin-bottom: 0; font-size: 1.1rem; }
+@keyframes lineIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.badge { display: inline-block; margin-right: 6px; padding: 2px 9px; border-radius: 3px; background: #3b2508; color: #f1e4be; font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; vertical-align: 2px; }
+
+.valeria { margin: 0 0 14px; padding: 12px 14px; border: 1px solid var(--line); border-left: 3px solid var(--hue); border-radius: 3px; background: rgba(0, 0, 0, .25); font-size: 1.05rem; }
+.valeria p { margin: 0; }
+.valeria strong { color: var(--trim); }
+.gate { display: grid; gap: 10px; }
+.gate label { font-size: .8rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--hue); }
+.gate input { width: 100%; min-height: 60px; padding: 0 14px; background: rgba(0, 0, 0, .4); border: 1px solid var(--hue); border-radius: 4px; color: var(--trim); font-family: var(--display); font-weight: 700; font-size: 1.35rem; letter-spacing: .12em; text-align: center; text-transform: uppercase; }
+.gate input::placeholder { color: #6f6277; letter-spacing: .06em; font-size: 1rem; font-family: var(--body); font-weight: 400; text-transform: none; }
+.gate input:focus { box-shadow: 0 0 0 3px rgba(255, 255, 255, .12), 0 0 28px -4px var(--hue); }
+.gate input.shake { animation: shake .45s; border-color: var(--bad); }
+@keyframes shake { 20% { transform: translateX(-10px); } 40% { transform: translateX(9px); } 60% { transform: translateX(-6px); } 80% { transform: translateX(4px); } }
+.msg { min-height: 1.5em; margin: 0; text-align: center; font-size: 1.05rem; }
+.msg.bad { color: var(--bad); }
+
+.win { display: grid; gap: 12px; text-align: center; justify-items: center; padding: 20px 0 6px; }
+.plus { margin: 0; font-family: var(--display); font-weight: 900; font-size: clamp(4rem, 20vw, 6rem); line-height: 1; color: var(--trim); text-shadow: 0 0 40px var(--hue); animation: plusIn 1.1s cubic-bezier(.2, .9, .3, 1.3) both; }
+@keyframes plusIn { 0% { opacity: 0; transform: translateY(40px) scale(.4); } 100% { opacity: 1; transform: none; } }
+.win .wmsg { margin: 0; font-size: 1.25rem; animation: lineIn .8s .5s ease-out both; }
+.win .cta { animation: lineIn .8s 1s ease-out both; }
+.done { margin-top: 22px; }
+.done summary { cursor: pointer; color: var(--muted); font-size: 1rem; padding: 10px 0; }
+.done ul { margin: 0; padding: 0 0 0 20px; color: var(--ink); }
+.done li { margin-bottom: 4px; }
+.done li span { color: var(--trim); font-variant-numeric: tabular-nums; }
+
+.end { display: grid; gap: 14px; text-align: center; justify-items: center; padding-top: 10px; }
+.end .title { font-size: clamp(1.9rem, 8vw, 2.7rem); }
+.end .big { margin: 0; font-family: var(--display); font-weight: 900; font-size: 4.4rem; line-height: 1; color: var(--trim); text-shadow: 0 0 40px var(--hue); }
+footer { margin-top: 30px; display: flex; justify-content: center; }
+.secret { display: flex; gap: 10px; align-items: flex-start; margin: 0 0 14px; padding: 12px 14px; border: 1px dashed var(--hue); border-radius: 3px; background: rgba(0, 0, 0, .3); font-size: 1.02rem; }
+.secret b { color: var(--trim); letter-spacing: .12em; text-transform: uppercase; font-size: .8rem; display: block; margin-bottom: 2px; }
+.secret .eye { flex: none; width: 26px; height: 26px; color: var(--hue); animation: blink 4s ease-in-out infinite; }
+@keyframes blink { 0%, 92%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.1); } }
+.caught { margin-top: 4px; }
+.caught-msg { margin: 0; text-align: center; color: var(--bad); min-height: 1.4em; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+</style>
+
+</head>
+<body>
+<canvas id="candles" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<div id="app">
+  <header class="bar">
+    <span class="brand">Misiones de Giuliana</span>
+    <button class="ghost" id="snd" type="button" aria-pressed="true">Sonido</button>
+  </header>
+  <main id="stage"></main>
+  <footer><button class="ghost" id="restart" type="button">Empezar de nuevo</button></footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var KEY = 'misiones-giuliana-v2';
+  var HAND = 10; /* cuántas misiones le tocan a cada persona */
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+
+  var HOUSES = [
+    { id: 'g', name: 'Gryffindor' }, { id: 's', name: 'Slytherin' },
+    { id: 'r', name: 'Ravenclaw' }, { id: 'h', name: 'Hufflepuff' }
+  ];
+  var COLORS = { g: ['#ef5f58', '#f0c24e'], s: ['#43bf7c', '#cfd8de'], r: ['#6a9af0', '#d2a26a'], h: ['#f4c733', '#f7e9ad'] };
+
+  /* Los códigos se guardan como huella, no como texto. */
+  var MISSIONS = [
+    { id: 1, pts: 15, title: "La palabra prohibida", h: "7d28e321623df114",
+      texts: ["Lográ que 5 personas distintas digan la palabra «perro» en voz alta. Podés hacer preguntas, contar una anécdota o lo que se te ocurra.", "Lográ que 5 personas distintas digan la palabra «gato» en voz alta. Podés hacer preguntas, contar una anécdota o lo que se te ocurra.", "Lográ que 5 personas distintas digan la palabra «pizza» en voz alta. Podés hacer preguntas, contar una anécdota o lo que se te ocurra.", "Lográ que 5 personas distintas digan la palabra «dragón» en voz alta. Podés hacer preguntas, contar una anécdota o lo que se te ocurra.", "Lográ que 5 personas distintas digan la palabra «torta» en voz alta. Podés hacer preguntas, contar una anécdota o lo que se te ocurra.", "Lográ que 5 personas distintas digan la palabra «escoba» en voz alta. Podés hacer preguntas, contar una anécdota o lo que se te ocurra."],
+      proof: "Traé a 2 de esas personas para que Valeria les confirme." },
+    { id: 2, pts: 10, title: "El censo de casas", h: "9a33848049b6d3ed",
+      texts: ["Preguntale a 4 personas a qué casa de Hogwarts les gustaría pertenecer y por qué.", "Preguntale a 4 personas qué poder mágico elegirían tener y por qué."],
+      proof: "Contale a Valeria qué respondió cada una." },
+    { id: 3, pts: 15, title: "Foto de hechizo", h: "efca2880fba62787",
+      texts: ["Sacate una selfie con 4 personas, todos haciendo la pose de lanzar un hechizo con una varita imaginaria.", "Sacate una selfie con 4 personas, todos con cara de susto como si vieran un dragón."],
+      proof: "Mostrale la foto a Valeria." },
+    { id: 4, pts: 20, title: "El mago veterano", h: "333da951b49b839e",
+      texts: ["Convencé a alguien mayor de 40 de que se saque una foto con vos en pose de mago o de bruja."],
+      proof: "Mostrale la foto a Valeria." },
+    { id: 5, pts: 15, title: "Nombre mágico", h: "6483b0197f3060f4",
+      texts: ["Inventá un hechizo con un nombre nuevo y lográ que 3 personas lo griten a la vez.", "Inventá el nombre de una poción y lográ que 3 personas lo digan a la vez con cara de misterio."],
+      proof: "Valeria tiene que escucharlo en vivo." },
+    { id: 6, pts: 20, title: "Arcoíris de casas", h: "dbaad96b8337b028",
+      texts: ["Encontrá a 4 personas que lleven puesto algo rojo, verde, azul y amarillo, una de cada color.", "Encontrá a 4 personas que lleven puesto algo negro, blanco, celeste y rosa, una de cada color."],
+      proof: "Traé a las 4 personas hasta Valeria." },
+    { id: 7, pts: 15, title: "Luz y sombra", h: "20660aeab155e133",
+      texts: ["Decí «Lumos» y lográ que 5 personas aplaudan todas al mismo tiempo.", "Decí «Nox» y lográ que 5 personas se queden quietas y en silencio durante 5 segundos."],
+      proof: "Valeria tiene que verlo en vivo o recibir un video corto." },
+    { id: 8, pts: 10, title: "Palabras para la cumpleañera", h: "fe0b3637e1033bb8",
+      texts: ["Conseguí que 3 personas te digan una palabra linda para Giuliana.", "Conseguí que 3 personas le pidan un deseo a Giuliana y anotalos."],
+      proof: "Contale a Valeria lo que dijo cada una." },
+    { id: 9, pts: 10, title: "El juego del ingenio", h: "f4d4682f85aba290",
+      texts: ["Contá un chiste y hacé reír a 3 personas.", "Decí una adivinanza y lográ que 3 personas la resuelvan."],
+      proof: "Valeria o una persona testigo lo confirma." },
+    { id: 10, pts: 20, title: "La fila de magos", h: "4961a2f99bb90f92",
+      texts: ["Armá una fila de 6 personas ordenadas de la más alta a la más baja."],
+      proof: "Valeria revisa la fila." },
+    { id: 11, pts: 15, title: "El grito mágico", h: "e733cd9e76436155",
+      texts: ["Lográ que 5 personas estiren la mano y griten «Accio» a la vez.", "Lográ que 5 personas hagan como que abren una puerta y griten «Alohomora» a la vez."],
+      proof: "Valeria tiene que ver o escuchar el grito." },
+    { id: 12, pts: 20, title: "Baile del banquete", h: "39fe5d84094b7f85",
+      texts: ["Conseguí que 3 personas bailen con vos durante 10 segundos."],
+      proof: "Un video corto, o Valeria presente." },
+    { id: 13, pts: 20, title: "Estatuas de piedra", h: "5384ebf92b701fcc",
+      texts: ["Armá con 4 personas una estatua que se quede quieta durante 10 segundos."],
+      proof: "Valeria mira la estatua y cuenta hasta 10." },
+    { id: 14, pts: 10, title: "El bestiario", h: "7f81641e55ae3d4b",
+      texts: ["Preguntale a 5 personas cuál es su animal favorito y anotalo en tu celular.", "Preguntale a 5 personas cuál es su comida favorita y anotalo en tu celular."],
+      proof: "Mostrale la lista a Valeria." },
+    { id: 15, pts: 15, title: "Trabalenguas mágico", h: "fdc18c45969347d6",
+      texts: ["Decí «Tres tristes tigres tragaban trigo en un trigal» tres veces seguidas, sin equivocarte."],
+      proof: "Tiene que ser frente a Valeria." },
+    { id: 16, pts: 15, title: "Abrazo de casa", h: "31746ff00105641b",
+      texts: ["Armá un abrazo grupal de 5 personas que dure 5 segundos."],
+      proof: "Valeria lo ve o recibe una foto." },
+    { id: 17, pts: 10, title: "Rugido de dragón", h: "7e409fa82a16c65d",
+      texts: ["Hacé que 3 personas rujan como dragones a la vez."],
+      proof: "Valeria tiene que escucharlos." },
+    { id: 18, pts: 10, title: "Poción secreta", h: "0071e7f309d59f78",
+      texts: ["Conseguí que 3 personas inventen el nombre de una poción y qué efecto tiene. Anotalas."],
+      proof: "Mostrale la lista a Valeria." },
+    { id: 19, pts: 15, title: "Mapa de la casa", h: "11988bdc8c8202f7",
+      texts: ["Dibujá en una servilleta o en tu celular un mapa simple de la casa con 4 lugares marcados."],
+      proof: "Mostrale el dibujo a Valeria." },
+    { id: 20, pts: 20, title: "Palabras encadenadas", h: "1dc9c4aa9088b155",
+      texts: ["Armá una ronda de 5 personas donde cada una dice una palabra que empieza con la última letra de la anterior."],
+      proof: "Valeria mira la ronda." },
+    { id: 21, pts: 15, title: "Duelo de magos", h: "6b48ce584e0c61fb",
+      texts: ["Ganale a 3 personas distintas en piedra, papel o tijera."],
+      proof: "Las 3 personas se lo confirman a Valeria." },
+    { id: 22, pts: 15, title: "El espejo", h: "75548b8b5de43f8c",
+      texts: ["Hacé que alguien te imite durante 10 segundos cada gesto que hagas."],
+      proof: "Valeria mira el espejo humano." },
+    { id: 23, pts: 20, title: "Capa de invisibilidad", h: "c7b49b1ada886a95",
+      texts: ["Pasá 15 segundos frente a Valeria sin reírte, mientras 2 personas intentan hacerte reír."],
+      proof: "Valeria controla el tiempo." },
+    { id: 24, pts: 15, title: "Torre imposible", h: "24e0ccc1b3d1be14",
+      texts: ["Armá una torre con 5 objetos distintos que se mantenga en pie durante 5 segundos."],
+      proof: "Valeria ve la torre." },
+    { id: 25, pts: 10, title: "La llave dorada", h: "a30d07736d187d7e",
+      texts: ["Encontrá algo dorado en la casa y sacate una foto con 2 personas junto a eso."],
+      proof: "Mostrale la foto a Valeria." }
+  ];
+  function mission(id) { return MISSIONS.filter(function (m) { return m.id === id; })[0]; }
+  function house(id) { return HOUSES.filter(function (h) { return h.id === id; })[0]; }
+
+  var state = load();
+  function fresh() { return { screen: 'welcome', house: '', name: '', deck: [], done: [], cur: 0, curVar: 0, pts: 0 }; }
+  function load() {
+    try {
+      var v = JSON.parse(localStorage.getItem(KEY));
+      if (v && typeof v.screen === 'string' && Array.isArray(v.deck) && Array.isArray(v.done)) return v;
+    } catch (e) {}
+    return fresh();
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  function norm(s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+  function hash(s, seed) {
+    var x = seed >>> 0;
+    for (var i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619) >>> 0; }
+    return ('00000000' + x.toString(16)).slice(-8);
+  }
+  function fingerprint(code) { var s = 'FIESTA15|' + norm(code); return hash(s, 2166136261) + hash(s, 0x9747b28c); }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+  /* ---------- Sonido ---------- */
+  var ac = null, soundOn = true;
+  function tone(f, t0, dur, type, vol) {
+    if (!soundOn) return;
+    try {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      var o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime + t0;
+      o.type = type || 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(vol || 0.09, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + 0.05);
+    } catch (e) {}
+  }
+  function sOk() { [659, 784, 988, 1319].forEach(function (f, i) { tone(f, i * 0.09, 0.5, 'triangle', 0.1); }); }
+  function sBad() { tone(196, 0, 0.35, 'sawtooth', 0.05); tone(155, 0.12, 0.4, 'sawtooth', 0.05); }
+  function sOpen() { tone(220, 0, 0.5, 'triangle', 0.08); tone(330, 0.3, 0.5, 'triangle', 0.08); tone(523, 0.6, 0.7, 'triangle', 0.1); }
+  function sFan() { [523, 659, 784, 1047, 784, 1047, 1319].forEach(function (f, i) { tone(f, i * 0.16, 0.8, 'triangle', 0.11); }); }
+  $('#snd').addEventListener('click', function () {
+    soundOn = !soundOn; this.setAttribute('aria-pressed', String(soundOn)); this.textContent = soundOn ? 'Sonido' : 'Silencio';
+  });
+
+  /* ---------- Utilidades de pantalla ---------- */
+  var stage = $('#stage'), app = $('#app');
+  var timers = [];
+  function later(fn, ms) { var t = setTimeout(fn, reduce ? Math.min(ms, 150) : ms); timers.push(t); return t; }
+  function clearAll() { timers.forEach(clearTimeout); timers = []; }
+  function applyHouse() { app.className = state.house || ''; }
+  function crest(letter) { return '<svg class="crest" viewBox="0 0 64 76" aria-hidden="true"><path d="M6 6h52v32c0 17-13 27-26 34C19 65 6 55 6 38z"/><text x="32" y="46" text-anchor="middle">' + letter + '</text></svg>'; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function tween(el, from, to, dur) {
+    cancelAnimationFrame(el._r);
+    if (reduce) { el.textContent = to; return; }
+    el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+    var t0 = performance.now();
+    (function step(t) {
+      var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(from + (to - from) * e);
+      if (p < 1) el._r = requestAnimationFrame(step);
+    })(t0);
+  }
+
+  /* ---------- Pantallas ---------- */
+  function route() {
+    clearAll(); applyHouse();
+    if (state.screen === 'welcome') renderWelcome();
+    else if (state.screen === 'house') renderHouse();
+    else if (state.screen === 'end') renderEnd(false);
+    else renderPlay();
+    window.scrollTo(0, 0);
+  }
+
+  function renderWelcome() {
+    stage.innerHTML =
+      '<section class="welcome scene">' +
+        '<div class="seal" aria-hidden="true"><span>15</span></div>' +
+        '<p class="kicker">Una invitación mágica</p>' +
+        '<h1 class="title">Bienvenidos a los 15 años de Giuliana</h1>' +
+        '<p class="tag">La aventura comienza aquí</p>' +
+        '<p class="secret" style="text-align:left"><svg class="eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span><b>Las misiones son secretas</b>Si alguien se entera de tu misión, se descuentan 5 puntos.</span></p><p class="lead">Completá misiones al azar (a cada persona le tocan distintas), juntá puntos para tu casa y pedile a Valeria, la hermana de Giuliana, el código que confirma cada misión.</p>' +
+        '<button class="cta" id="go" type="button">Comenzar la aventura</button>' +
+      '</section>';
+    $('#go').addEventListener('click', function () { sOpen(); state.screen = 'house'; save(); route(); });
+  }
+
+  function renderHouse() {
+    var cards = HOUSES.map(function (h) {
+      return '<button type="button" class="hc ' + h.id + '" role="radio" aria-checked="' + (state.house === h.id) + '" data-h="' + h.id + '">' + crest(h.name[0]) + '<span class="nm">' + h.name + '</span></button>';
+    }).join('');
+    stage.innerHTML =
+      '<section class="setup scene">' +
+        '<p class="kicker">Antes de empezar</p>' +
+        '<h1>¿De qué casa sos?</h1>' +
+        '<div class="houses" role="radiogroup" aria-label="Elegí tu casa">' + cards + '</div>' +
+        '<div class="field"><label for="nm">Tu nombre</label><input id="nm" type="text" maxlength="24" autocomplete="off" placeholder="Para que Valeria te reconozca" value="' + esc(state.name) + '"></div>' +
+        '<button class="cta" id="enter" type="button"' + (state.house ? '' : ' disabled') + '>Entrar a la aventura</button>' +
+      '</section>';
+    var enter = $('#enter');
+    stage.querySelectorAll('.hc').forEach(function (b) {
+      b.addEventListener('click', function () {
+        state.house = b.getAttribute('data-h'); applyHouse();
+        stage.querySelectorAll('.hc').forEach(function (x) { x.setAttribute('aria-checked', String(x === b)); });
+        enter.disabled = false; tone(660, 0, 0.2, 'triangle', 0.09);
+        var r = b.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + r.height / 2, COLORS[state.house]);
+      });
+    });
+    enter.addEventListener('click', function () {
+      state.name = $('#nm').value.trim();
+      if (!state.deck.length) state.deck = shuffle(MISSIONS.map(function (m) { return m.id; })).slice(0, HAND);
+      state.screen = 'play'; save(); sOk(); route();
+    });
+  }
+
+  function chipHTML() {
+    var h = house(state.house) || HOUSES[0];
+    return '<div class="chip">' + crest(h.name[0]) +
+      '<div class="who"><span class="hn">' + h.name + '</span><span class="pn">' + (state.name ? esc(state.name) : 'Mago o bruja sin nombre') + '</span></div>' +
+      '<div class="sc"><output id="pts">' + state.pts + '</output><small>puntos</small></div></div>';
+  }
+  function progressHTML() {
+    var n = state.done.length, total = state.deck.length;
+    return '<div class="progress"><p><span>Misiones cumplidas</span><span>' + n + ' de ' + total + '</span></p><div class="bar2" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + n + '"><i style="width:' + (n / total * 100) + '%"></i></div></div>';
+  }
+  function doneHTML() {
+    if (!state.done.length) return '';
+    var items = state.done.map(function (id) { var m = mission(id); return '<li>' + m.title + ' <span>+' + m.pts + '</span></li>'; }).join('');
+    return '<details class="done"><summary>Mis misiones cumplidas (' + state.done.length + ')</summary><ul>' + items + '</ul></details>';
+  }
+
+  function renderPlay() {
+    if (state.done.length >= state.deck.length) { state.screen = 'end'; save(); renderEnd(false); return; }
+    if (state.cur) renderMission(false); else renderDraw();
+  }
+
+  function renderDraw() {
+    stage.innerHTML =
+      '<section class="scene">' + chipHTML() + progressHTML() +
+        '<div class="draw" id="drawBox">' +
+          '<div class="scrollicon" aria-hidden="true"><i></i><span class="wax">' + (house(state.house).name[0]) + '</span></div>' +
+          '<p class="lead">Un pergamino sellado te espera. Cuando lo abras, aparece una misión al azar.</p>' +
+          '<button class="cta" id="drawBtn" type="button">Sacar una misión</button>' +
+        '</div>' + doneHTML() +
+      '</section>';
+    $('#drawBtn').addEventListener('click', function () {
+      var box = $('#drawBox');
+      box.classList.add('opening');
+      $('#drawBtn').disabled = true; $('#drawBtn').textContent = 'Abriendo el pergamino…';
+      sOpen();
+      later(function () {
+        var next = state.deck.filter(function (id) { return state.done.indexOf(id) === -1; })[0];
+        state.cur = next; state.curVar = Math.floor(Math.random() * mission(next).texts.length); save();
+        var r = box.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + 60, COLORS[state.house]);
+        renderMission(true);
+      }, 1300);
+    });
+  }
+
+  var lockTimer = null, wrong = 0, busy = false;
+  function renderMission(fresh) {
+    wrong = 0; busy = false; clearInterval(lockTimer);
+    var m = mission(state.cur);
+    stage.innerHTML =
+      '<section class="scene">' + chipHTML() + progressHTML() +
+        '<p class="secret"><svg class="eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span><b>Misión secreta</b>No se la cuentes a nadie. Si alguien se entera, se descuentan 5 puntos.</span></p>' +
+          '<article class="scroll"><div class="paper">' +
+          '<div class="top"><p class="kicker" style="opacity:1;animation:none;margin:0">Misión ' + (state.done.length + 1) + ' de ' + state.deck.length + '</p><span class="coin">+' + m.pts + ' puntos</span></div>' +
+          '<h2>' + m.title + '</h2>' +
+          '<p class="mtext">' + (m.texts[state.curVar] || m.texts[0]) + '</p>' +
+          '<p class="proof"><span class="badge">Prueba</span>' + m.proof + '</p>' +
+        '</div></article>' +
+        '<div class="valeria"><p>Cuando la cumplas, mostrale la prueba a <strong>Valeria</strong>, la hermana de Giuliana. Si te la aprueba, te dice el código.</p></div>' +
+        '<form class="gate" id="gate" autocomplete="off" novalidate>' +
+          '<label for="code">Código de Valeria</label>' +
+          '<input id="code" type="text" inputmode="text" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="24" placeholder="Una palabra y un número">' +
+          '<button class="cta" id="try" type="submit">Validar misión</button>' +
+          '<p class="msg" id="msg" role="status" aria-live="polite"></p>' +
+        '</form>' +
+        '<div class="gate caught"><button class="ghost" id="caught" type="button">Me descubrieron (−5)</button><p class="caught-msg" id="cmsg" role="status" aria-live="polite"></p></div>' + doneHTML() +
+      '</section>';
+    $('#gate').addEventListener('submit', onSubmit);
+    $('#caught').addEventListener('click', function () {
+      var from = state.pts, loss = Math.min(5, from);
+      state.pts = from - loss; save(); sBad();
+      tween($('#pts'), from, state.pts, 700);
+      $('#cmsg').textContent = loss ? 'Se descontaron ' + loss + ' puntos. Con más cuidado la próxima.' : 'No tenías puntos para perder, pero cuidá el secreto.';
+    });
+    if (fresh) window.scrollTo(0, 0);
+  }
+
+  function onSubmit(e) {
+    e.preventDefault();
+    if (busy) return;
+    var input = $('#code'), msg = $('#msg'), btn = $('#try');
+    if (!norm(input.value)) { msg.className = 'msg bad'; msg.textContent = 'Pedile el código a Valeria y escribilo acá.'; input.focus(); return; }
+    var m = mission(state.cur);
+    if (fingerprint(input.value) === m.h) {
+      busy = true; input.disabled = true; btn.disabled = true;
+      success(m);
+    } else {
+      wrong++; sBad();
+      input.classList.remove('shake'); void input.offsetWidth; input.classList.add('shake');
+      msg.className = 'msg bad'; msg.textContent = 'Ese código no corresponde a esta misión. Preguntale otra vez a Valeria.';
+      input.select();
+      if (wrong >= 3) lockOut(input, btn, msg);
+    }
+  }
+
+  function lockOut(input, btn, msg) {
+    var left = 15; input.disabled = true; btn.disabled = true;
+    msg.textContent = 'Esperá ' + left + ' s antes de intentar de nuevo.';
+    clearInterval(lockTimer);
+    lockTimer = setInterval(function () {
+      left--;
+      if (left <= 0) { clearInterval(lockTimer); wrong = 0; input.disabled = false; btn.disabled = false; msg.className = 'msg'; msg.textContent = ''; input.value = ''; input.focus(); }
+      else msg.textContent = 'Esperá ' + left + ' s antes de intentar de nuevo.';
+    }, 1000);
+  }
+
+  function success(m) {
+    var from = state.pts;
+    state.pts += m.pts; state.done.push(m.id); state.cur = 0; save();
+    var h = house(state.house);
+    sOk(); tween($('#pts'), from, state.pts, 1200);
+    var box = $('#gate');
+    var r = box.getBoundingClientRect(); burst(r.left + r.width / 2, r.top + 30, COLORS[state.house]); confetti(COLORS[state.house]);
+    var bar = $('.bar2 i'); if (bar) bar.style.width = (state.done.length / state.deck.length * 100) + '%';
+    var last = state.done.length >= state.deck.length;
+    box.outerHTML = '<div class="win"><p class="plus">+' + m.pts + '</p><p class="wmsg">¡Misión cumplida! Sumaste ' + m.pts + ' puntos para ' + h.name + '.</p><button class="cta" id="nextM" type="button">' + (last ? 'Ver el resultado final' : 'Sacar otra misión') + '</button></div>';
+    $('.valeria').remove();
+    $('#nextM').addEventListener('click', function () { if (last) { state.screen = 'end'; save(); renderEnd(true); window.scrollTo(0, 0); } else { renderDraw(); window.scrollTo(0, 0); } });
+  }
+
+  function renderEnd(first) {
+    var h = house(state.house) || HOUSES[0];
+    stage.innerHTML =
+      '<section class="end scene">' +
+        '<p class="kicker">Aventura completa</p>' +
+        '<h1 class="title">¡Cumpliste tus ' + state.deck.length + ' misiones!</h1>' +
+        '<p class="big">' + state.pts + '</p>' +
+        '<p class="lead">puntos para ' + h.name + '. Contale a Valeria que terminaste tus misiones.</p>' + doneHTML() +
+      '</section>';
+    if (first !== false) { sFan(); later(function () { confetti(COLORS[state.house]); }, 300); }
+  }
+
+  /* ---------- Reiniciar ---------- */
+  var rb = $('#restart'), rt = null;
+  rb.addEventListener('click', function () {
+    if (!rb.classList.contains('warn')) { rb.classList.add('warn'); rb.textContent = '¿Seguro? Se borra tu avance'; rt = setTimeout(cancelRestart, 3500); return; }
+    cancelRestart(); state = fresh(); save(); route();
+  });
+  function cancelRestart() { clearTimeout(rt); rb.classList.remove('warn'); rb.textContent = 'Empezar de nuevo'; }
+
+  /* ---------- Efectos ---------- */
+  var fx = $('#fx'), fc = fx.getContext('2d'), parts = [], fxRaf = 0, W = 0, H = 0;
+  function sizeFx() { var d = Math.min(window.devicePixelRatio || 1, 2); W = window.innerWidth; H = window.innerHeight; fx.width = Math.round(W * d); fx.height = Math.round(H * d); fc.setTransform(d, 0, 0, d, 0, 0); }
+  function burst(x, y, cols) {
+    if (reduce) return; cols = (cols || ['#f2b94b']).concat(['#ffe3a1', '#ffffff']);
+    for (var i = 0; i < 70; i++) { var a = Math.random() * 6.2832, v = 2 + Math.random() * 6; parts.push({ x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, g: 0.1, life: 0, max: 40 + Math.random() * 30, s: 1.5 + Math.random() * 2.5, c: cols[i % cols.length], t: 's' }); }
+    runFx();
+  }
+  function confetti(cols) {
+    if (reduce) return; cols = (cols || ['#f2b94b']).concat(['#ffe3a1', '#ffffff']);
+    for (var i = 0; i < 150; i++) parts.push({ x: Math.random() * W, y: -20 - Math.random() * H * 0.5, vx: (Math.random() - 0.5) * 3, vy: 2 + Math.random() * 4, g: 0.03, life: 0, max: 250 + Math.random() * 60, s: 5 + Math.random() * 6, a: Math.random() * 6, va: (Math.random() - 0.5) * 0.3, c: cols[i % cols.length], t: 'r' });
+    runFx();
+  }
+  function runFx() { if (!fxRaf) fxRaf = requestAnimationFrame(stepFx); }
+  function stepFx() {
+    fc.clearRect(0, 0, W, H);
+    parts = parts.filter(function (p) { return p.life < p.max && p.y < H + 30; });
+    parts.forEach(function (p) {
+      p.life++; p.x += p.vx; p.y += p.vy; p.vy += p.g;
+      if (p.t === 's') { p.vx *= 0.98; fc.globalAlpha = Math.max(0, 1 - p.life / p.max); fc.globalCompositeOperation = 'lighter'; fc.fillStyle = p.c; fc.beginPath(); fc.arc(p.x, p.y, p.s, 0, 6.2832); fc.fill(); }
+      else { p.a += p.va; fc.globalAlpha = 1; fc.globalCompositeOperation = 'source-over'; fc.save(); fc.translate(p.x, p.y); fc.rotate(p.a); fc.fillStyle = p.c; fc.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * 0.6); fc.restore(); }
+    });
+    fc.globalAlpha = 1; fc.globalCompositeOperation = 'source-over';
+    if (parts.length) fxRaf = requestAnimationFrame(stepFx); else { fxRaf = 0; fc.clearRect(0, 0, W, H); }
+  }
+
+  /* Velas flotantes */
+  var cv = $('#candles'), cc = cv.getContext('2d'), candles = [], cw = 0, ch = 0, cRaf = 0;
+  function initCandles() {
+    var d = Math.min(window.devicePixelRatio || 1, 2);
+    cw = window.innerWidth; ch = window.innerHeight; cv.width = Math.round(cw * d); cv.height = Math.round(ch * d); cc.setTransform(d, 0, 0, d, 0, 0);
+    candles = []; var n = Math.max(8, Math.min(18, Math.round(cw / 40)));
+    for (var i = 0; i < n; i++) { var z = 0.45 + Math.random() * 0.8; candles.push({ x: Math.random() * cw, y: Math.random() * ch * 0.7 + 10, z: z, ph: Math.random() * 6.28, sp: 0.006 + Math.random() * 0.01, fl: Math.random() * 6.28 }); }
+    if (reduce) drawCandles(true);
+  }
+  function drawCandles(once) {
+    cc.clearRect(0, 0, cw, ch);
+    candles.forEach(function (c) {
+      if (!once) { c.ph += c.sp; c.fl += 0.18; }
+      var bx = c.x + Math.sin(c.ph) * 8 * c.z, by = c.y + Math.cos(c.ph * 0.8) * 10 * c.z;
+      var w = 10 * c.z, h = 44 * c.z, flick = 1 + 0.12 * Math.sin(c.fl) + 0.06 * Math.sin(c.fl * 2.3);
+      var a = 0.35 + 0.3 * c.z;
+      var g = cc.createRadialGradient(bx, by - 4, 0, bx, by - 4, 70 * c.z * flick);
+      g.addColorStop(0, 'rgba(255,190,90,' + (0.34 * a).toFixed(3) + ')'); g.addColorStop(1, 'rgba(255,190,90,0)');
+      cc.fillStyle = g; cc.beginPath(); cc.arc(bx, by - 4, 70 * c.z * flick, 0, 6.2832); cc.fill();
+      cc.fillStyle = 'rgba(240,226,190,' + a.toFixed(3) + ')'; cc.fillRect(bx - w / 2, by, w, h);
+      cc.fillStyle = 'rgba(190,170,130,' + (a * 0.9).toFixed(3) + ')'; cc.fillRect(bx + w / 6, by, w / 3, h);
+      cc.fillStyle = 'rgba(255,214,120,' + Math.min(1, a + 0.4).toFixed(3) + ')';
+      cc.beginPath(); cc.ellipse(bx, by - 7 * c.z * flick, 3.2 * c.z, 8 * c.z * flick, 0, 0, 6.2832); cc.fill();
+      cc.fillStyle = 'rgba(255,250,225,' + Math.min(1, a + 0.4).toFixed(3) + ')';
+      cc.beginPath(); cc.ellipse(bx, by - 5 * c.z, 1.4 * c.z, 3.4 * c.z, 0, 0, 6.2832); cc.fill();
+    });
+    if (!once) cRaf = requestAnimationFrame(function () { drawCandles(false); });
+  }
+  function startCandles() { cancelAnimationFrame(cRaf); initCandles(); if (!reduce) drawCandles(false); }
+  var rz;
+  window.addEventListener('resize', function () { clearTimeout(rz); rz = setTimeout(function () { startCandles(); sizeFx(); }, 150); });
+  startCandles(); sizeFx();
+
+  route();
+})();
+</script>
+</body>
+</html>
